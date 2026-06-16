@@ -4,6 +4,7 @@ import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 
+import com.homekart.order_service.exception.OrderNotFoundException;
 import com.homekart.order_service.model.Order;
 import com.homekart.order_service.repository.OrderRepository;
 
@@ -15,7 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class OrderService {
 
-    private OrderRepository orderRepository;
+    private final OrderRepository orderRepository;
 
     public String createOrder(Order order) {
 
@@ -25,11 +26,18 @@ public class OrderService {
         return orderRepository.saveOrder(order);
     }
 
-    public Order getOrder(String orderId){
+    public Order getOrder(String orderId) {
         log.info("Fetching order with OrderId: {}", orderId);
 
-        return orderRepository.getOrder(orderId);
-        
+        Order order = orderRepository.getOrder(orderId);
+
+        if (order == null) {
+            throw new OrderNotFoundException(
+                    "Order not found with Id: " + orderId);
+        }
+
+        return order;
+
     }
 
 }
