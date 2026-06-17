@@ -4,8 +4,10 @@ import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 
+import com.homekart.order_service.client.ProductClient;
 import com.homekart.order_service.exception.OrderNotFoundException;
 import com.homekart.order_service.model.Order;
+import com.homekart.order_service.model.ProductResponse;
 import com.homekart.order_service.repository.OrderRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -16,12 +18,17 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class OrderService {
 
+    private final ProductClient productClient;
     private final OrderRepository orderRepository;
 
     public String createOrder(Order order) {
 
         log.info("Creating order with productId: {}" + order.getProductId());
         order.setOrderId(UUID.randomUUID().toString());
+
+        ProductResponse product = productClient.getProduct(order.getProductId());
+        if (product == null)
+            throw new RuntimeException("Product not found to place order");
 
         return orderRepository.saveOrder(order);
     }
