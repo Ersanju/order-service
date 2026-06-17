@@ -7,7 +7,6 @@ import org.springframework.stereotype.Service;
 import com.homekart.order_service.client.ProductClient;
 import com.homekart.order_service.exception.OrderNotFoundException;
 import com.homekart.order_service.model.Order;
-import com.homekart.order_service.model.ProductResponse;
 import com.homekart.order_service.repository.OrderRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -24,14 +23,15 @@ public class OrderService {
 
     public String createOrder(Order order) {
 
-        log.info("Creating order with productId: {}" + order.getProductId());
+        log.info("Creating order with productId: {}",
+                order.getProductId());
+
         order.setOrderId(UUID.randomUUID().toString());
 
-        ProductResponse product = productClient.getProduct(order.getProductId());
-        if (product == null)
-            throw new RuntimeException("Product not found to place order");
+        productClient.getProduct(order.getProductId());
 
         String response = orderRepository.saveOrder(order);
+
         notificationService.publishOrderCreated(order);
 
         return response;
