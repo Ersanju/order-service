@@ -20,6 +20,7 @@ public class OrderService {
 
     private final ProductClient productClient;
     private final OrderRepository orderRepository;
+    private final NotificationService notificationService;
 
     public String createOrder(Order order) {
 
@@ -30,7 +31,10 @@ public class OrderService {
         if (product == null)
             throw new RuntimeException("Product not found to place order");
 
-        return orderRepository.saveOrder(order);
+        String response = orderRepository.saveOrder(order);
+        notificationService.publishOrderCreated(order);
+
+        return response;
     }
 
     public Order getOrder(String orderId) {
